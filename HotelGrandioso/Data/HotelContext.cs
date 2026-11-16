@@ -1,0 +1,57 @@
+﻿using System.Security.Cryptography;
+using Hotel.Grandioso.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace Hotel.Grandioso.Data;
+
+public class HotelContext : DbContext
+{
+    public DbSet<Guest> Guests { get; set; }
+    public DbSet<Room> Rooms { get; set; }
+    public DbSet<RoomType> RoomTypes { get; set; }
+    public DbSet<Booking> Bookings { get; set; }
+    public DbSet<Treatment> Treatments { get; set; }
+    public DbSet<SpaBooking> SpaBookings { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder options)
+    {
+        options.UseSqlite("Data Source=hotel.db");
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<RoomType>().HasData(
+            new RoomType { Id = 1, Name = "Standard", Description = "Standard room" },
+            new RoomType { Id = 2, Name = "Luxury", Description = "Luxury suite"},
+            new RoomType { Id = 3, Name = "Bridal", Description = "Bridal suite" });
+
+        var rooms = new List<Room>();
+        int id = 1;
+
+        void Add(int floor, int from, int to, int size, decimal price, int typeId)
+        {
+            for (int nr = from; nr <= to; nr++)
+            {
+                rooms.Add(new Room
+                {
+                    Id = id++, RoomNumber = nr, Floor = floor, 
+                    SizeM2 = size, PricePerNight = price, RoomTypeId = typeId
+                });
+            }
+        }
+
+        Add(3, 301, 303, 120, 1200, 1);
+        Add(3, 304, 304, 180, 2800, 2);
+        Add(3, 305, 305, 220, 3500, 3);
+        Add(2, 201, 205, 100, 1000, 1);
+        Add(1, 101, 105, 80, 800, 1);
+
+        modelBuilder.Entity<Room>().HasData(rooms);
+
+        modelBuilder.Entity<Treatment>().HasData(
+            new Treatment { Id = 1, Name = "Entré (per hour)", DurationMinutes = 60, Price = 150},
+            new Treatment { Id = 2, Name = "Massage (60 min)", DurationMinutes = 60, Price = 950},
+            new Treatment { Id = 3, Name = "Pedicure (big toe)", DurationMinutes = 30, Price = 350},
+            new Treatment { Id = 4, Name = "Pedicure (foot)", DurationMinutes = 60, Price = 650});
+    }
+}
