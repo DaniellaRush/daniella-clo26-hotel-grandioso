@@ -1,4 +1,5 @@
-﻿using Hotel.Grandioso.Services;
+﻿using System.Runtime.CompilerServices;
+using Hotel.Grandioso.Services;
 
 namespace Hotel.Grandioso.UI;
 
@@ -23,8 +24,10 @@ public class ConsoleMenu
             Console.WriteLine("2. Visa lediga rum");
             Console.WriteLine("3. Boka rum");
             Console.WriteLine("4. Visa alla bokningar");
-            Console.WriteLine("5. Avboka");
-            Console.WriteLine("6. Avsluta");
+            Console.WriteLine("5. Boka spabehandling");
+            Console.WriteLine("6. Visa spabokningar");
+            Console.WriteLine("7. Avboka");
+            Console.WriteLine("8. Avsluta");
             Console.Write("Val: ");
 
             string? choice = Console.ReadLine();
@@ -34,8 +37,10 @@ public class ConsoleMenu
             else if (choice == "2") ShowAvailableRooms();
             else if (choice == "3") BookRoom();
             else if (choice == "4") ShowBookings();
-            else if (choice == "5") CancelBooking();
-            else if (choice == "6") running = false;
+            else if (choice == "5") BookSpa();
+            else if (choice == "6") ShowSpaBookings();
+            else if (choice == "7") CancelBooking();
+            else if (choice == "8") running = false;
             else Console.WriteLine("Ogiltigt val, försök igen.");
         }
     }
@@ -130,6 +135,63 @@ public class ConsoleMenu
             Console.WriteLine($"Period: {b.CheckIn:yyyy-MM-dd} - {b.CheckOut:yyyy-MM-dd}, {_repo.CalculateTotalPrice(b)} kr.");
         }
     }
+
+    private void BookSpa()
+    {
+        var treatments = _repo.GetAllTreatments();
+        foreach (var t in treatments)
+        {
+            Console.WriteLine($"Behandling {t.Id}: {t.Name}, {t.DurationMinutes} min, {t.Price} kr");
+        }
+
+        int treatmentId = ReadInt("Välj Behandlingsnummer: ");
+        var treatment = treatments.FirstOrDefault(t => t.Id == treatmentId);
+        if (treatment == null)
+        {
+            Console.WriteLine("Behandlingen finns inte.");
+            return;
+        }
+
+        DateTime date = ReadDate("Datum och tid för behandling (ÅÅÅÅ-MM-DD HH:MM): ");
+        if (date < DateTime.Now)
+        {
+            Console.WriteLine("Tiden har redan passerat.");
+            return;
+        }
+
+        Console.Write("Namn: ");
+        string name = Console.ReadLine() ?? "";
+        Console.Write("E-post: ");
+        string email = Console.ReadLine() ?? "";
+
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email))
+        {
+            Console.WriteLine("Namn och e-post får inte vara tomma.");
+            return;
+        }
+
+        var guest = _repo.AddGuest(name, email);
+        var spaBooking = guest == null ? null : _repo.CreateSpaBooking(guest.Id, treatment.Id, date);
+
+        Console.WriteLine(spaBooking != null ? 
+                          $"Spabokning {spaBooking.Id} skapad: {treatment.Name} för {treatment.Price} kr" 
+                          : "Spabokningen kunde inte genomföras.");
+    }
+
+    private void ShowSpaBookings()
+    {
+        var bookings = _repo.GetAllSpaBookings();
+        if (bookings.Count == 0)
+        {
+            Console.WriteLine("Det finns inga spabokningar.");
+            return;
+        }
+        foreach (var s in bookings)
+        {
+            Console.WriteLine($"Spabokning {s.Id}: {s.Guest.Name}, {s.Treatment.Name}, {s.Date:yyyy-MM-dd HH:mm}, {s.Treatment.Price} kr");
+        }
+    }
+
     private void CancelBooking()
     {
         int id = ReadInt("Bokningsnummer att avboka: ");
@@ -148,6 +210,20 @@ public class ConsoleMenu
         }
         
     }
+
+    private static DateTime ReadDateTime(string prompt)
+    {
+        while (true)
+        {
+            Console.Write(prompt);
+            if (DateTime.TryParse(Console.ReadLine(), out DateTime dateTime))
+            {
+                return dateTime;
+            }
+            Console.WriteLine("Ogiltigt datum och tid, skriv i formatet ÅÅÅÅ-MM-DD HH:MM");
+        }
+    }
+
     private static DateTime ReadDate(string prompt)
     {
         while (true)

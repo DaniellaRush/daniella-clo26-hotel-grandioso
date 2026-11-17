@@ -15,4 +15,8 @@ public interface IHotelRepository
     List<Booking> GetAllBookings();
     bool CancelBooking(int bookingId);
     decimal CalculateTotalPrice(Booking booking);
+
+    List<Treatment> GetAllTreatments();
+    SpaBooking? CreateSpaBooking(int guestId, int treatmentId, DateTime date);
+    List<SpaBooking> GetAllSpaBookings();
 }

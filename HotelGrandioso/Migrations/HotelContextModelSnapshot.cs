@@ -250,20 +250,20 @@ namespace Hotel_Grandioso.Migrations
                         new
                         {
                             Id = 1,
-                            Description = "Standard room",
+                            Description = "Standardrum",
                             Name = "Standard"
                         },
                         new
                         {
                             Id = 2,
-                            Description = "Luxury suite",
-                            Name = "Luxury"
+                            Description = "Lyxsvit",
+                            Name = "Lyx"
                         },
                         new
                         {
                             Id = 3,
-                            Description = "Bridal suite",
-                            Name = "Bridal"
+                            Description = "Bröllopsvit",
+                            Name = "Bröllop"
                         });
                 });
 
@@ -316,7 +316,7 @@ namespace Hotel_Grandioso.Migrations
                         {
                             Id = 1,
                             DurationMinutes = 60,
-                            Name = "Entré (per hour)",
+                            Name = "Entré (per timme)",
                             Price = 150m
                         },
                         new
@@ -330,14 +330,14 @@ namespace Hotel_Grandioso.Migrations
                         {
                             Id = 3,
                             DurationMinutes = 30,
-                            Name = "Pedicure (big toe)",
+                            Name = "Pedikyr (stortå)",
                             Price = 350m
                         },
                         new
                         {
                             Id = 4,
                             DurationMinutes = 60,
-                            Name = "Pedicure (foot)",
+                            Name = "Pedikyr (fot)",
                             Price = 650m
                         });
                 });

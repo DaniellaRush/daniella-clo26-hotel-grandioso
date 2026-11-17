@@ -106,6 +106,32 @@ public class HotelRepository : IHotelRepository
         return nights * booking.Room.PricePerNight;
     }
 
+    public List<Treatment> GetAllTreatments()
+    {
+        return _db.Treatments.OrderBy(t => t.Id).ToList();
+    }
+
+    public SpaBooking? CreateSpaBooking(int guestId, int treatmentId, DateTime date)
+    {
+        var spaBooking = new SpaBooking
+        {
+            GuestId = guestId,
+            TreatmentId = treatmentId,
+            Date = date
+        };
+        _db.SpaBookings.Add(spaBooking);
+        return TrySave() ? spaBooking : null;
+    }
+
+    public List<SpaBooking> GetAllSpaBookings()
+    {
+        return _db.SpaBookings
+            .Include(sb => sb.Guest)
+            .Include(sb => sb.Treatment)
+            .OrderBy(sb => sb.Date)
+            .ToList();
+    }
+
     private bool TrySave()
     {
         try

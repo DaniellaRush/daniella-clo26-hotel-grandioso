@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography;
-using Hotel.Grandioso.Models;
+﻿using Hotel.Grandioso.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hotel.Grandioso.Data;
@@ -21,9 +20,9 @@ public class HotelContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<RoomType>().HasData(
-            new RoomType { Id = 1, Name = "Standard", Description = "Standard room" },
-            new RoomType { Id = 2, Name = "Luxury", Description = "Luxury suite"},
-            new RoomType { Id = 3, Name = "Bridal", Description = "Bridal suite" });
+            new RoomType { Id = 1, Name = "Standard", Description = "Standardrum" },
+            new RoomType { Id = 2, Name = "Lyx", Description = "Lyxsvit"},
+            new RoomType { Id = 3, Name = "Bröllop", Description = "Bröllopsvit" });
 
         var rooms = new List<Room>();
         int id = 1;
@@ -49,9 +48,9 @@ public class HotelContext : DbContext
         modelBuilder.Entity<Room>().HasData(rooms);
 
         modelBuilder.Entity<Treatment>().HasData(
-            new Treatment { Id = 1, Name = "Entré (per hour)", DurationMinutes = 60, Price = 150},
+            new Treatment { Id = 1, Name = "Entré (per timme)", DurationMinutes = 60, Price = 150},
             new Treatment { Id = 2, Name = "Massage (60 min)", DurationMinutes = 60, Price = 950},
-            new Treatment { Id = 3, Name = "Pedicure (big toe)", DurationMinutes = 30, Price = 350},
-            new Treatment { Id = 4, Name = "Pedicure (foot)", DurationMinutes = 60, Price = 650});
+            new Treatment { Id = 3, Name = "Pedikyr (stortå)", DurationMinutes = 30, Price = 350},
+            new Treatment { Id = 4, Name = "Pedikyr (fot)", DurationMinutes = 60, Price = 650});
     }
 }
