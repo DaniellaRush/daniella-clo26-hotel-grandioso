@@ -17,7 +17,7 @@ dotnet run --project HotelGrandioso
 ## Databas
 
 - Databas: SQLite
-- Migrationer: [hur du skapar och kör dem]
+- Migrationer: Ligger i mappen "Migrations". Programmet kör `Migrate()` vid start. 
 
 ## UML-klassdiagram
 
@@ -90,9 +90,7 @@ Vi följer principerna för om dataminimering och sparar endast uppgifter nödv�
 
 ## Designmönster
 
-Beskriv det designmönster du använt (till exempel Repository), vad det gör och varför du valde det.
-
->
+Interfacet `HotelRepository` beskriver vad som går att göra, och klassen `HotelRepository` bestämmer hur det görs med EF Core och LINQ. Menyn I `UI` känner bara till interfacet och fixar in- och utmatningen. All logik angående databasen ligger i repot. Det gör koden lättläst och lätt att ändras utan att menyn behöver ändras.
 
 ## Tekniker
 

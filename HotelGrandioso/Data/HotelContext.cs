@@ -12,6 +12,7 @@ public class HotelContext : DbContext
     public DbSet<Treatment> Treatments { get; set; }
     public DbSet<SpaBooking> SpaBookings { get; set; }
 
+    //SQLite valdes eftersom det inte kräver någon installation utan migrationen skapar det vid start 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
         options.UseSqlite("Data Source=hotel.db");
@@ -19,6 +20,7 @@ public class HotelContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        //Seed data läggs in via migrationer så att alla som klonat projektet får samma rum  
         modelBuilder.Entity<RoomType>().HasData(
             new RoomType { Id = 1, Name = "Standard", Description = "Standardrum" },
             new RoomType { Id = 2, Name = "Lyx", Description = "Lyxsvit"},
@@ -26,7 +28,8 @@ public class HotelContext : DbContext
 
         var rooms = new List<Room>();
         int id = 1;
-
+        
+        //Hjälper till att skapa fler rum/våning så slipper jag skriva ut alla rum för hand
         void Add(int floor, int from, int to, int size, decimal price, int typeId)
         {
             for (int nr = from; nr <= to; nr++)

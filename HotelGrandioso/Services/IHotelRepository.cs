@@ -2,6 +2,7 @@
 
 namespace Hotel.Grandioso.Services;
 
+//Säger till vad, inte hur, som kan göras. Gör att databasen kan bytas utan att UI:n ändras
 public interface IHotelRepository
 {
     List<Room> GetAllRooms();

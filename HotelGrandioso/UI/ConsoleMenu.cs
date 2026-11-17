@@ -1,10 +1,10 @@
-﻿using System.Runtime.CompilerServices;
-using Hotel.Grandioso.Services;
+﻿using Hotel.Grandioso.Services;
 
 namespace Hotel.Grandioso.UI;
 
 public class ConsoleMenu
 {
+    // Menyn pratar med interfacet, all logik ligger i repot
     private readonly IHotelRepository _repo;
 
     public ConsoleMenu(IHotelRepository repo)
@@ -33,7 +33,7 @@ public class ConsoleMenu
             string? choice = Console.ReadLine();
             Console.WriteLine();
 
-            if (choice == "1") ShowRooms(); 
+            if (choice == "1") ShowRooms();
             else if (choice == "2") ShowAvailableRooms();
             else if (choice == "3") BookRoom();
             else if (choice == "4") ShowBookings();
@@ -51,9 +51,9 @@ public class ConsoleMenu
             Console.WriteLine($"Rum {room.RoomNumber}: {room.RoomType.Name}, {room.SizeM2} kvm, {room.PricePerNight} kr/natt");
         }
     }
-    
+
     private void ShowAvailableRooms()
-    {   
+    {
         DateTime checkIn = ReadDate("Incheckningsdatum (ÅÅÅÅ-MM-DD): ");
         DateTime checkOut = ReadDate("Utcheckningsdatum (ÅÅÅÅ-MM-DD): ");
 
@@ -75,6 +75,7 @@ public class ConsoleMenu
             Console.WriteLine($"Rum {room.RoomNumber}: {room.RoomType.Name}, {room.SizeM2} kvm, {room.PricePerNight} kr/natt");
         }
     }
+
     private void BookRoom()
     {
         int roomNumber = ReadInt("Rumsnummer: ");
@@ -88,6 +89,7 @@ public class ConsoleMenu
         DateTime checkIn = ReadDate("Incheckningsdatum (ÅÅÅÅ-MM-DD): ");
         DateTime checkOut = ReadDate("Utcheckningsdatum (ÅÅÅÅ-MM-DD): ");
 
+        // Kollar så datum/tillgänglighet finns innan gästen kan sparas så att en nekad bokning inte ger en "tom" gäst utan bokning i databasen
         if (checkOut <= checkIn)
         {
             Console.WriteLine("Utcheckningssdatum måste vara efter incheckningsdatum.");
@@ -129,7 +131,7 @@ public class ConsoleMenu
             Console.WriteLine("Det finns inga bokningar.");
             return;
         }
-        foreach(var b in bookings)
+        foreach (var b in bookings)
         {
             Console.WriteLine($"Bokning {b.Id}: {b.Guest.Name}, {b.Room.RoomNumber}.");
             Console.WriteLine($"Period: {b.CheckIn:yyyy-MM-dd} - {b.CheckOut:yyyy-MM-dd}, {_repo.CalculateTotalPrice(b)} kr.");
@@ -152,7 +154,7 @@ public class ConsoleMenu
             return;
         }
 
-        DateTime date = ReadDate("Datum och tid för behandling (ÅÅÅÅ-MM-DD HH:MM): ");
+        DateTime date = ReadDateTime("Datum och tid för behandling (ÅÅÅÅ-MM-DD HH:MM): ");
         if (date < DateTime.Now)
         {
             Console.WriteLine("Tiden har redan passerat.");
@@ -173,8 +175,8 @@ public class ConsoleMenu
         var guest = _repo.AddGuest(name, email);
         var spaBooking = guest == null ? null : _repo.CreateSpaBooking(guest.Id, treatment.Id, date);
 
-        Console.WriteLine(spaBooking != null ? 
-                          $"Spabokning {spaBooking.Id} skapad: {treatment.Name} för {treatment.Price} kr" 
+        Console.WriteLine(spaBooking != null ?
+                          $"Spabokning {spaBooking.Id} skapad: {treatment.Name} för {treatment.Price} kr"
                           : "Spabokningen kunde inte genomföras.");
     }
 
@@ -197,7 +199,10 @@ public class ConsoleMenu
         int id = ReadInt("Bokningsnummer att avboka: ");
         Console.WriteLine(_repo.CancelBooking(id) ? "Bokningen är avbokad" : "Hittade ingen bokning med det ID:t");
     }
-        private static int ReadInt(string prompt)
+
+
+    // Gästen frågas om och om igen tills ett valid rumsnummer skrivs in, så att programemt inte kraschar vid fel inmatning
+    private static int ReadInt(string prompt)
     {
         while (true)
         {
@@ -208,9 +213,10 @@ public class ConsoleMenu
             }
             Console.WriteLine("Skriv ett heltal");
         }
-        
+
     }
 
+    // Behåller klockslaget då spabokningar är tidsbestämda
     private static DateTime ReadDateTime(string prompt)
     {
         while (true)
@@ -229,11 +235,12 @@ public class ConsoleMenu
         while (true)
         {
             Console.Write(prompt);
-            if(DateTime.TryParse(Console.ReadLine(), out DateTime date))
+            if (DateTime.TryParse(Console.ReadLine(), out DateTime date))
             {
+                // Tar bort tiden då bokningar gäller hela dygn
                 return date.Date;
             }
             Console.WriteLine("Ogiltigt datum, skriv i formatet ÅÅÅÅ-MM-DD");
         }
     }
-    }
+}

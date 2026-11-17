@@ -6,6 +6,7 @@ namespace Hotel.Grandioso.Services;
 
 public class HotelRepository : IHotelRepository
 {
+    //Kontext skickas in utifrån så klassen själv inte bestämmer hur databasen skapas
     private readonly HotelContext _db;
 
     public HotelRepository(HotelContext db)
@@ -16,6 +17,7 @@ public class HotelRepository : IHotelRepository
     public List<Room> GetAllRooms()
     {
         return _db.Rooms
+            //.Include för att EF Core inte kan hämta kopplade objekt själv
             .Include(r => r.RoomType)
             .OrderBy(r => r.RoomNumber)
             .ToList();
@@ -41,6 +43,8 @@ public class HotelRepository : IHotelRepository
 
     public bool IsRoomAvailable(int roomId, DateTime checkIn, DateTime checkOut)
     {
+        //Två bokningsdatum överlappar när den ena börjar före den andras slut
+        //Använder < och > istället för <= & >= så kan en gäst checka in samma dag som en annan checkar ut
         return !_db.Bookings.Any(b =>
             b.RoomId == roomId &&
             b.CheckIn < checkOut &&
@@ -51,6 +55,7 @@ public class HotelRepository : IHotelRepository
     {
         return _db.Rooms
             .Include(r => r.RoomType)
+            //Samma fråga som i IsRoomAvailable men istället en enda fråga mot databasen ist för en fråga per rum
             .Where(r => !_db.Bookings.Any(b =>
                 b.RoomId == r.Id &&
                 b.CheckIn < checkOut &&
@@ -61,6 +66,7 @@ public class HotelRepository : IHotelRepository
 
     public Booking? CreateBooking(int guestId, int roomId, DateTime checkIn, DateTime checkOut)
     {
+        //Gör att dubbelbokning är omöhligt oavsett vem som anropar metoden (Margareta)
         if (checkOut <= checkIn || !IsRoomAvailable(roomId, checkIn, checkOut))
         {
             return null;
@@ -102,6 +108,7 @@ public class HotelRepository : IHotelRepository
 
     public decimal CalculateTotalPrice(Booking booking)
     {
+        //Antal nätter är skillnad i dagar, utchekcning räknas inte som en natt
         int nights = (booking.CheckOut - booking.CheckIn).Days;
         return nights * booking.Room.PricePerNight;
     }
@@ -113,6 +120,7 @@ public class HotelRepository : IHotelRepository
 
     public SpaBooking? CreateSpaBooking(int guestId, int treatmentId, DateTime date)
     {
+        // Spabokning kräver inte att man är gäst i hotellet
         var spaBooking = new SpaBooking
         {
             GuestId = guestId,
@@ -132,6 +140,7 @@ public class HotelRepository : IHotelRepository
             .ToList();
     }
 
+    //Gör att programmet inte kraschar, så metoder kan returnera null eller false ist i det fall att databasen är otillgänglig
     private bool TrySave()
     {
         try
